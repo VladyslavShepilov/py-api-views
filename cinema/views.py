@@ -57,7 +57,7 @@ def movie_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class GenreListView(views.APIView):
+class GenreList(views.APIView):
     def get(self, request):
         genre = Genre.objects.all()
         serializer = GenreSerializer(genre, many=True)
@@ -70,7 +70,7 @@ class GenreListView(views.APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class GenreDetailView(views.APIView):
+class GenreDetail(views.APIView):
     def get_object(self, pk):
         return get_object_or_404(Genre, pk=pk)
 
@@ -99,7 +99,7 @@ class GenreDetailView(views.APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ActorListView(
+class ActorList(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     generics.GenericAPIView,
@@ -114,7 +114,7 @@ class ActorListView(
         return self.create(request, *args, **kwargs)
 
 
-class ActorDetailView(
+class ActorDetail(
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
@@ -136,18 +136,20 @@ class ActorDetailView(
         return self.destroy(request, *args, **kwargs)
 
 
-class CinemaHallListVew(generics.ListCreateAPIView):
-    queryset = CinemaHall.objects.all()
-    serializer_class = CinemaHallSerializer
-
-
-class CinemaHallDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = CinemaHall.objects.all()
+class CinemaHallViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = CinemaHall.objects.prefetch_related()
     serializer_class = CinemaHallSerializer
 
 
 class MovieViewSet(
     viewsets.ModelViewSet,
 ):
-    queryset = Movie.objects.prefetch_related("actors", "genres")
+    queryset = Movie.objects.all()
     serializer_class = MovieSerializer
